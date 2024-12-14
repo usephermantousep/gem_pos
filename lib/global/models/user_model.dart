@@ -5,35 +5,44 @@ class UserModel extends Equatable {
     required this.id,
     required this.name,
     required this.email,
-    required this.company,
+    this.roles = const [],
+    this.store,
   });
 
   final int id;
   final String name;
   final String email;
-  final String company;
+  final List<RoleModel> roles;
+  final StoreModel? store;
 
   @override
-  List<Object?> get props => [name, email, company];
+  List<Object?> get props => [id, name, email];
 
-  UserModel copyWith({String? name, String? email, String? company}) {
-    return UserModel(
+  UserModel copyWith({String? name, String? email, List<RoleModel>? roles, StoreModel? store}) =>
+      UserModel(
         id: id,
         name: name ?? this.name,
         email: email ?? this.email,
-        company: company ?? this.company);
-  }
+        roles: roles ?? this.roles,
+        store: store ?? this.store,
+      );
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
       id: map['id'],
       name: map['name'],
       email: map['email'],
-      company: map['company'],
+      roles: List<RoleModel>.from(map['roles'].map((x) => RoleModel.fromMap(x))),
+      store: StoreModel.fromMap(map['store']),
     );
   }
 
-  factory UserModel.init() => const UserModel(id: 0, name: '', email: '', company: '');
+  factory UserModel.init() => UserModel(
+        id: 0,
+        name: '',
+        email: '',
+        roles: [],
+      );
 
   @override
   bool get stringify => true;

@@ -27,7 +27,7 @@ class LoginModel extends Equatable {
       ];
 
   Map<String, dynamic> toMap() => {
-        "user": username,
+        "email": username,
         "password": password,
       };
 

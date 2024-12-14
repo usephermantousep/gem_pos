@@ -95,16 +95,10 @@ class ApiService extends BaseApiServices {
       {Map<String, String>? headers, Map<String, dynamic>? body, int? duration}) async {
     try {
       var multiPartFile = await http.MultipartFile.fromPath('file', file.path);
-      final client = http.MultipartRequest("POST", Uri.parse(url))
-        ..headers["Content-Type"] = "application/json"
-        ..headers["Authorization"] = headers?['Authorization'] ?? ''
-        ..fields['doctype'] = body?['doctype']
-        ..fields['docname'] = body?['docname']
-        ..fields['docfield'] = body?['docfield'] ?? ''
-        ..fields['fieldname'] = body?['fieldname'] ?? ''
-        ..fields['is_private'] = body?['is_private'] ?? ''
-        ..fields['folder'] = body?['folder'] ?? ''
-        ..files.add(multiPartFile);
+      final client = http.MultipartRequest("POST", Uri.parse(url));
+      headers?.forEach((key, value) => client.headers[key] = value);
+      body?.forEach((key, value) => client.fields[key] = value);
+      client.files.add(multiPartFile);
 
       final response = await client.send();
       final responsed = await http.Response.fromStream(response);
@@ -129,40 +123,6 @@ class ApiService extends BaseApiServices {
     } catch (e) {
       return ApiReturnValue(value: null, message: e.toString(), statusCode: 418);
     }
-  }
-
-  @override
-  Future<ApiReturnValue<Map<String, dynamic>?>> multiPartFilePE(String url, File file,
-      {Map<String, String>? headers, Map<String, dynamic>? body, int? duration}) async {
-    ApiReturnValue<Map<String, dynamic>?> responseJson;
-    try {
-      var multiPartFile = await http.MultipartFile.fromPath('file', file.path);
-      final client = http.MultipartRequest("POST", Uri.parse(url))
-        ..headers["Content-Type"] = "application/json"
-        ..headers["Authorization"] = headers?['Authorization'] ?? ''
-        ..fields['doc'] = jsonEncode(body?['doc'] ?? '')
-        ..files.add(multiPartFile);
-
-      final response = await client.send();
-      final responsed = await http.Response.fromStream(response);
-
-      log('from PUT $url');
-      log(client.headers.toString());
-
-      log(responsed.body);
-      responseJson = returnReponse(responsed);
-    } on SocketException {
-      return const ApiReturnValue(
-          value: null, message: "Error: koneksi ke server gagal", statusCode: 503);
-    } on TimeoutException {
-      return const ApiReturnValue(
-          value: null, message: "Komunikasi ke server gagal", statusCode: 408);
-    } on http.ClientException catch (e) {
-      return ApiReturnValue(value: null, message: "Komunikasi ke server gagal $e", statusCode: 400);
-    } catch (e) {
-      return ApiReturnValue(value: null, message: e.toString(), statusCode: 418);
-    }
-    return responseJson;
   }
 
   @override
@@ -199,11 +159,7 @@ class ApiService extends BaseApiServices {
     if (response.statusCode < 200 || response.statusCode > 300) {
       return ApiReturnValue(
           value: null,
-          message: json['message']?['error'] ??
-              (json['exception'] as String?)?.replaceAll(RegExp(r'<[^>]*>|[<>"]'), '') ??
-              json['response']?['message'] ??
-              json['message']?['message'] ??
-              'Terjadi Error',
+          message: json['meta']['message'] ?? 'Terjadi Error',
           statusCode: response.statusCode);
     }
     return ApiReturnValue(value: json, statusCode: response.statusCode);

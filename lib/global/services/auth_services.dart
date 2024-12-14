@@ -12,10 +12,10 @@ class AuthService {
       return ApiReturnValue(
           value: null, message: response.message, statusCode: response.statusCode);
     }
-    return ApiReturnValue(
-        value: response.value!['response']['data']['token'],
-        message: response.message,
-        statusCode: response.statusCode);
+    final res = response.value!['data'];
+    final token = "${res['token_type']} ${res['access_token']}";
+    log(token);
+    return ApiReturnValue(value: token, message: response.message, statusCode: response.statusCode);
   }
 
   Future<ApiReturnValue<bool?>> logout() async {
@@ -44,7 +44,7 @@ class AuthService {
     }
 
     return ApiReturnValue(
-        value: UserModel.fromMap(response.value!['response']['data']),
+        value: UserModel.fromMap(response.value!['data']),
         message: response.message,
         statusCode: response.statusCode);
   }

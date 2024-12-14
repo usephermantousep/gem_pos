@@ -25,7 +25,7 @@ class F {
   static String get baseUrl {
     switch (appFlavor) {
       case Flavor.dev:
-        return 'http://192.168.9.8:8001';
+        return 'http://192.168.1.5:8000';
       case Flavor.uat:
         return 'https://uat-elite.gias.co.id';
       case Flavor.prod:

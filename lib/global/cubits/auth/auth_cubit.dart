@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gempos/core/util/util.dart';
@@ -10,7 +12,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   final AuthService _service;
 
-  Future<void> login(LoginModel login, String lang) async {
+  Future<void> login(LoginModel login) async {
     emit(AuthLoading(state.auth));
     final response = await _service.login(data: login);
 
@@ -18,6 +20,8 @@ class AuthCubit extends Cubit<AuthState> {
       emit(AuthFailed(state.auth, message: response.message ?? 'Error'));
       return;
     }
+
+    log('token : ${response.value}');
 
     SharedPreferencesUtil.setString(key: SharedPreferencesKey.token, value: response.value!);
 
